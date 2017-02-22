@@ -18,3 +18,7 @@ target
 .settings
 .idea
 
+test/orbreinvoke/**/*~
+
+scratch
+test/lib

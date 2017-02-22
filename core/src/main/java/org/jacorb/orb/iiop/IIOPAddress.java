@@ -18,6 +18,7 @@ package org.jacorb.orb.iiop;
  * USA.
  */
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -44,8 +45,7 @@ public class IIOPAddress extends ProtocolAddressBase
 
     static
     {
-        networkVirtualInterfaces = System.getProperty("jacorb.network.virtual", "VirtualBox,VMWare,vboxnet,docker")
-                .split(",");
+        networkVirtualInterfaces = System.getProperty("jacorb.network.virtual", "VirtualBox,VMWare,VMware,virbr0,vboxnet,docker").split(",");
     }
 
     private String source_name = null; // initializing string
@@ -594,14 +594,15 @@ public class IIOPAddress extends ProtocolAddressBase
     /**
      * Returns an ordered list of InetAddresses. Order is:
      *
-     * IPv4/IPv6 routable address Point-to-point address Fallback to link-local/loopback.
+     * IPv4/IPv6 routable address Point-to-point address Fallback to link-local and finally loopback.
      *
      */
     public static LinkedList<InetAddress> getNetworkInetAddresses()
     {
         LinkedList<InetAddress> result = new LinkedList<InetAddress>();
         LinkedList<InetAddress> virtual = new LinkedList<InetAddress>();
-        LinkedList<InetAddress> p2ploopback = new LinkedList<InetAddress>();
+        LinkedList<InetAddress> p2plinklocal = new LinkedList<InetAddress>();
+        LinkedList<InetAddress> loopback = new LinkedList<InetAddress>();
 
         // Its somewhat tricky in Java to return the default route (i.e. what ip
         // route show would provide).
@@ -623,7 +624,8 @@ public class IIOPAddress extends ProtocolAddressBase
                 boolean isVirtual = false;
                 for (String nvi : networkVirtualInterfaces)
                 {
-                    if (ni.getDisplayName().contains(nvi))
+                    String displayName = ni.getDisplayName();
+                    if (displayName != null && displayName.contains(nvi))
                     {
                         isVirtual = true;
                         break;
@@ -635,7 +637,7 @@ public class IIOPAddress extends ProtocolAddressBase
                     Enumeration<InetAddress> addr = ni.getInetAddresses();
                     while (addr.hasMoreElements())
                     {
-                        p2ploopback.addFirst(addr.nextElement());
+                        p2plinklocal.addFirst(addr.nextElement());
                     }
                 }
                 else if (isVirtual)
@@ -650,9 +652,13 @@ public class IIOPAddress extends ProtocolAddressBase
                         {
                             virtual.addLast(addr);
                         }
+                        else if (addr.isLinkLocalAddress())
+                        {
+                            p2plinklocal.addLast(addr);
+                        }
                         else
                         {
-                            p2ploopback.addLast(addr);
+                            loopback.add(addr);
                         }
                     }
                 }
@@ -666,11 +672,22 @@ public class IIOPAddress extends ProtocolAddressBase
 
                         if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress())
                         {
-                            result.addLast(addr);
+                            if (addr instanceof Inet6Address)
+                            {
+                                result.addLast(addr);
+                            }
+                            else
+                            {
+                                result.addFirst(addr);
+                            }
+                        }
+                        else if (addr.isLinkLocalAddress())
+                        {
+                            p2plinklocal.addLast(addr);
                         }
                         else
                         {
-                            p2ploopback.addLast(addr);
+                            loopback.add(addr);
                         }
                     }
                 }
@@ -684,7 +701,8 @@ public class IIOPAddress extends ProtocolAddressBase
         }
 
         result.addAll(virtual);
-        result.addAll(p2ploopback);
+        result.addAll(p2plinklocal);
+        result.addAll(loopback);
 
         return result;
     }

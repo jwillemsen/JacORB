@@ -43,8 +43,50 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-This Release
+Next Release
 ============
+
+3.8
+===
+    - ORB
+         - Fix for null ptr in IIOPAddress (BZ1025)
+         - Improve network ordering (BZ1023)
+         - Add VMware for network ordering (BZ1024)
+         - Fixes for byte order selecting.
+         - Add ASCII and MacRoman as aliases for the ISO-8859-1 codeset
+         - Fix for bidirectional IIOP where the client creates a callback IOR with alternate
+           addresses. (BZ1026)
+         - Add jacodbg script to enable attaching a remote debugger to a shell-started process
+         - Fix to prevent COMM_FAILURE in concurrent handling of ForwardRequest in Portable Interceptors. (BZ1014)
+
+    - Misc
+         - Upgrade to SLF4j 1.7.14
+
+
+3.7
+===
+    - ORB
+         - Fix threading issue with Delegate/ReplyGroup (BZ1010).
+         - Fix invocation reentrancy issues (BZ1011, BZ1012).
+         - Fix for retry loops on exceptions that occur using forwarded references (BZ1013).
+         - Fix for spin-lock on corbaname resolution failure (BZ1018)
+         - Fix for spin-lock on other forwarded IOR resolution failure (BZ1018)
+
+    - POA
+         - Add spec-compliant minor codes for POA raised system exceptions.
+         - Improve performance of thread pool on high-volume systems.
+    - IDL
+         - Fix for i2jpackage option causing rejection of valid module definition.
+    - Misc
+         - Remove slf4j-jdk14 as a compile-time dependency of core/services (BZ1016).
+
+3.6.1
+=====
+    - ORB
+         - Handle null from NetworkInterface (BZ1005).
+         - Fix for race condition in IMR.
+         - Fix race condition (BZ1007).
+         - Prevent extraneous client side forwarding loop (BZ1009).
 
 3.6
 ===

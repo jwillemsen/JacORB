@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.7-SNAPSHOT</version>
+        <version>3.9-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jacorb.jacorb-demo</groupId>
@@ -14,6 +14,14 @@
 
     <name>Demo-Parent</name>
     <description>JacORB Demo Aggregation POM</description>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-jdk14</artifactId>
+        <scope>runtime</scope>
+      </dependency>
+    </dependencies>
 
     <modules>
         <module>ami</module>
@@ -56,6 +64,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <configuration>
+                  <skip>${skipDemos}</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

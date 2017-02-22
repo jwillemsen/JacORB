@@ -37,7 +37,12 @@ public class CodeSet
     static final String CODESET_PREFIX = "0x00000000";
 
     /**
-     * <code>ISO8859_1</code> represents standard ASCII.
+     * <code>ASCII</code> represents the base 7-bits of ISO8859_1
+     */
+    static final CodeSet ASCII_CODESET = new AsciiCodeSet();
+
+    /**
+     * <code>ISO8859_1</code> represents the default 8-bit codeset.
      * It is ISO 8859-1:1987; Latin Alphabet No. 1
      */
     static final CodeSet ISO8859_1_CODESET = new Iso8859_1CodeSet();
@@ -65,10 +70,12 @@ public class CodeSet
      */
     static final CodeSet UCS2_CODESET = new Ucs2CodeSet();
 
+    static final CodeSet MAC_ROMAN_CODESET = new MacRomanCodeSet();
+
     /**
      * All of the encodings supported by Jacorb. These should be listed in order of preference.
      */
-    static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET , UCS2_CODESET };
+    static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET, UCS2_CODESET, MAC_ROMAN_CODESET, ASCII_CODESET };
 
     /**
      * The default JVM platform encoding.
@@ -109,6 +116,8 @@ public class CodeSet
     /** The canonical name of this code set. */
     private String name;
 
+    /** Identify this codeset as a local alias of some shared codeset and thus not to be added to the IOR */
+    boolean isAlias;
 
     /**
      * Convert the CORBA standard id to a String name.
@@ -187,7 +196,8 @@ public class CodeSet
         {
             if (KNOWN_ENCODINGS[i].supportsCharacterData( wide ) && !codeSets.contains( KNOWN_ENCODINGS[i] ))
             {
-                codeSets.add( KNOWN_ENCODINGS[i] );
+                if (!KNOWN_ENCODINGS[i].isAlias)
+                    codeSets.add( KNOWN_ENCODINGS[i] );
             }
         }
         int nativeSet = codeSets.remove( 0 ).getId();
@@ -324,6 +334,7 @@ public class CodeSet
     {
         this.id = id;
         this.name = name;
+        this.isAlias = false;
     }
 
 
@@ -362,7 +373,6 @@ public class CodeSet
     {
         return name;
     }
-
 
     @Override
     public String toString ()
@@ -507,6 +517,44 @@ public class CodeSet
         }
     }
 
+    static private class AsciiCodeSet extends Iso8859_1CodeSet {
+
+        private AsciiCodeSet()
+        {
+            super( 0x00010001, "ASCII" );
+            this.isAlias = true;
+        }
+
+
+        /**
+         * Only used for derived codesets
+         */
+        AsciiCodeSet(int i, String name)
+        {
+            super( i, name);
+            this.isAlias = true;
+        }
+
+    }
+
+    static private class MacRomanCodeSet extends Iso8859_1CodeSet {
+
+        private MacRomanCodeSet()
+        {
+            super( 0x00010001, "MacRoman" );
+            this.isAlias = true;
+        }
+
+
+        /**
+         * Only used for derived codesets
+         */
+        MacRomanCodeSet(int i, String name)
+        {
+            super( i, name);
+            this.isAlias = true;
+        }
+    }
 
     static private class Iso8859_15CodeSet extends Iso8859_1CodeSet {
 
