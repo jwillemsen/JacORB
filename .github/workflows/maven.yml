@@ -17,7 +17,6 @@ concurrency:
 jobs:
   build:
     permissions:
-      statuses: write
       checks: write
     # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idif
     if: github.event_name == 'pull_request'
