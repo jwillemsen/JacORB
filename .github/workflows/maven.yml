@@ -49,6 +49,8 @@ jobs:
     - name: Publish Test Report
       if: success() || failure()
       uses: mikepenz/action-junit-report@v6
+      with:
+        report_paths: '**/TEST-*.xml'
 
   snapshot:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
