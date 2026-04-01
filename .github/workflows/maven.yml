@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   build:
+    permissions:
+      checks: write
     # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idif
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -44,6 +46,12 @@ jobs:
 #      if: ${{ failure() }}
     - name: Codecov
       uses: codecov/codecov-action@v1
+    - name: Publish Test Report
+      if: success() || failure()
+      uses: mikepenz/action-junit-report@v6
+      with:
+        report_paths: '**/TEST-*.xml'
+        include_passed: true
 
   snapshot:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
